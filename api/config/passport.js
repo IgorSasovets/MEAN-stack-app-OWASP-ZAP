@@ -4,10 +4,10 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
 passport.use(new LocalStrategy({
-    usernameField: 'email'
+    usernameField: 'username'
   },
   function(username, password, done) {
-    User.findOne({ email: username }, function (err, user) {
+    User.findOne({ username: username }, function (err, user) {
       if (err) { return done(err); }
       // Return if user not found in database
       if (!user) {

@@ -19,17 +19,22 @@ module.exports.register = function(req, res) {
   var user = new User();
 
   user.name = req.body.name;
-  user.email = req.body.email;
+  user.username = req.body.username;
 
   user.setPassword(req.body.password);
 
   user.save(function(err) {
-    var token;
-    token = user.generateJwt();
-    res.status(200);
-    res.json({
-      "token" : token
-    });
+    if (err) {
+      console.error(err);
+      res.send(500, {message: "Oops, something went wrong"});
+    } else {
+      var token;
+      token = user.generateJwt();
+      res.status(200);
+      res.json({
+        "token" : token
+      });
+    }
   });
 
 };
@@ -42,6 +47,7 @@ module.exports.login = function(req, res) {
   //   });
   //   return;
   // }
+  console.log(req.body);
 
   passport.authenticate('local', function(err, user, info){
     var token;
@@ -65,4 +71,23 @@ module.exports.login = function(req, res) {
     }
   })(req, res);
 
+};
+
+// TODO: add blacklist approach to this functionality
+module.exports.logout = function(req, res) {
+  const userToken = req.body.token;
+
+  if (!userToken || !req.body.username) {
+    console.log();
+    res.send(401, {message: "User not authorized"});
+  } else {
+    return User.findOne({username: req.body.username})
+      .then(user => {
+        res.send(200, {message: "Log out successfull!"});
+      })
+      .catch(err => {
+        console.log(err);
+        res.send(500, {message: "Oops, something went wrong"});
+      });
+  }
 };
